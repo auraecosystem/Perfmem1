@@ -19,3 +19,9 @@ autoreconf --install
 
 # Executes your processed script to generate a native Makefile
 ./configure
+
+# Cuts from timestamp 00:01:00 for a duration of 30 seconds
+ffmpeg -ss 00:01:00 -i input.m4a -t 30 -c copy output_clip.m4a
+
+ffmpeg -i input.m4a -codec:a libmp3lame -qscale:a 2 output.mp3
+ffprobe -v error -show_format -show_streams input.m4a

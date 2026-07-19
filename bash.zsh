@@ -1,3 +1,9 @@
+# Forces Docker to build using your native host architecture speed profile
+docker buildx build --platform linux/arm64 -t m4-dev-app:latest .
+
+# Run the application container wrapper smoothly
+docker run --rm m4-dev-app:latest
+
 eval 'set +o history' 2>/dev/null || setopt HIST_IGNORE_SPACE 2>/dev/null
  touch ~/.gitcookies
  chmod 0600 ~/.gitcookies

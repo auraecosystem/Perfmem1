@@ -1,0 +1,46 @@
+import os
+import sys
+from pydub import AudioSegment
+
+# Explicitly link native M4 Homebrew FFmpeg path if Python can't locate it
+ffmpeg_path = "/opt/homebrew/bin/ffmpeg"
+if os.path.exists(ffmpeg_path):
+    AudioSegment.converter = ffmpeg_path
+
+def slice_and_boost_m4a(input_path, output_path, start_ms, end_ms):
+    """
+    Loads an M4A file, slices a segment, boosts volume, and exports it.
+    Timestamps must be supplied in milliseconds (1 second = 1000 ms).
+    """
+    try:
+        print(f"Loading track asset: {input_path}")
+        # Load native M4A/AAC source
+        track = AudioSegment.from_file(input_path, format="m4a")
+        
+        # Audio diagnostics printout
+        print(f"Original Length: {len(track) / 1000:.2f} seconds")
+        print(f"Channels Count: {track.channels} | Sample Rate: {track.frame_rate}Hz")
+
+        # Slice the audio file cleanly
+        sliced_clip = track[start_ms:end_ms]
+        
+        # Increase the audio volume gain smoothly by 4 Decibels (dB)
+        optimized_clip = sliced_clip.apply_gain(4)
+        
+        # Fade out the final 1.5 seconds to prevent abrupt clipping snaps
+        final_output = optimized_clip.fade_out(1500)
+
+        print(f"Exporting processed audio file to: {output_path}")
+        # Export back to an optimized M4A format (using standard AAC codec wrapper)
+        final_output.export(output_path, format="m4a", codec="aac")
+        print("Processing routine complete!")
+
+    except FileNotFoundError:
+        print(f"Error: The file '{input_path}' could not be located.", file=sys.stderr)
+    except Exception as e:
+        print(f"An error occurred during audio encoding: {str(e)}", file=sys.stderr)
+
+# Operational execution sample:
+# Cuts from the 10-second mark to the 40-second mark (30-second runtime clip)
+if __name__ == "__main__":
+    slice_and_boost_m4a("input.m4a", "output_clip.m4a", start_ms=10000, end_ms=40000)

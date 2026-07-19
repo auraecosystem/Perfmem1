@@ -1,0 +1,22 @@
+const ffmpeg = require('fluent-ffmpeg');
+
+function convertM4aToMp3(inputFile, outputFile) {
+    ffmpeg(inputFile)
+        // Set the output audio bitrate
+        .audioBitrate(192)
+        // Force output codec to MP3 standard
+        .toFormat('mp3')
+        .on('start', (commandLine) => {
+            console.log('Spawned FFmpeg with command: ' + commandLine);
+        })
+        .on('end', () => {
+            console.log('Audio processing finished successfully!');
+        })
+        .on('error', (err) => {
+            console.error('An error occurred: ' + err.message);
+        })
+        .save(outputFile);
+}
+
+// Execution
+convertM4aToMp3('input.m4a', 'output.mp3');
